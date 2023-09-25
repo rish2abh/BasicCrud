@@ -3,7 +3,7 @@ import { CreateUserDto, LoginUserDto } from '../common/DTO/create-user.dto';
 import { UpdateUserDto } from '../common/DTO/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/common/Schema/user.schema';
-import { Model ,Types} from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as crypto from 'crypto';
 import { AuthService } from 'src/common/auth/auth.service';
 
@@ -16,18 +16,17 @@ export class UserService {
 
   async SignUp(createUserDto: CreateUserDto, file) {
     try {
-      console.log(file,"file");
-      
+
       const hashedPassword = crypto
         .createHash('sha256')
         .update(createUserDto.password)
         .digest('hex');
-      console.log(createUserDto, 'gfjhkn');
+ 
 
       let data = {
         ...createUserDto,
         password: hashedPassword,
-        image : file.originalname
+        image: file.originalname,
       };
       const newUser = await this.UserModel.create(data);
 
@@ -90,33 +89,28 @@ export class UserService {
   }
 
   async remove(userId) {
-   try {
-    const id = new Types.ObjectId(userId)
-    const remove = await this.UserModel.deleteOne(id)
-    return{status:'success'}
-
-   } catch (error) {
-    console.log(error.message);
-    
-   }
-  }
-
-  async list(query: any){
     try {
-      const users=await  this.UserModel.find()
-      .limit(query.limit )
-      .skip((query.page - 1) * query.limit)
-      const count = await this.UserModel.countDocuments()
-      return {
-        status:"success",
-        totalPages: Math.ceil(count / query.limit),
-        users}
-      
+      const id = new Types.ObjectId(userId);
+      const remove = await this.UserModel.deleteOne(id);
+      return { status: 'success' };
     } catch (error) {
       console.log(error.message);
-      
     }
-   
+  }
+
+  async list(query: any) {
+    try {
+      const users = await this.UserModel.find()
+        .limit(query.limit)
+        .skip((query.page - 1) * query.limit);
+      const count = await this.UserModel.countDocuments();
+      return {
+        status: 'success',
+        totalPages: Math.ceil(count / query.limit),
+        users,
+      };
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 }
-
